@@ -1,0 +1,71 @@
+apiVersion: logging.openshift.io/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+  namespace: openshift-logging
+spec:
+  indexManagement:
+    mappings:
+    - aliases:
+      - apps
+      - logs.app
+      name: app
+      policyRef: app-policy
+    - aliases:
+      - infra
+      - logs.infra
+      name: infra
+      policyRef: infra-policy
+    - aliases:
+      - audit
+      - logs.audit
+      name: audit
+      policyRef: audit-policy
+    policies:
+    - name: app-policy
+      phases:
+        delete:
+          minAge: 1d
+          pruneNamespacesInterval: 30m
+        hot:
+          actions:
+            rollover:
+              maxAge: 1h
+      pollInterval: 15m
+    - name: infra-policy
+      phases:
+        delete:
+          minAge: 7d
+          namespaceSpec:
+          - minAge: 5h
+            namespace: openshift-monitoring
+          pruneNamespacesInterval: 30m
+        hot:
+          actions:
+            rollover:
+              maxAge: 8h
+      pollInterval: 30m
+    - name: audit-policy
+      phases:
+        delete:
+          minAge: 7d
+          pruneNamespacesInterval: 30m
+        hot:
+          actions:
+            rollover:
+              maxAge: 8h
+      pollInterval: 15m
+  nodeSpec:
+    proxyResources:
+      limits:
+        memory: 256Mi
+      requests:
+        memory: 256Mi
+  nodes:
+  - nodeCount: 3
+    roles:
+    - client
+    - data
+    - master
+    storage:
+      size: 200G
