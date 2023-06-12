@@ -17,13 +17,13 @@ spec:
     elasticsearch:
       nodeCount: 3 
       storage:
-        storageClassName: gp2 
-        size: 200G
+        storageClassName: thin-csi
+        size: 100G
       resources: 
         limits:
-          memory: "16Gi"
+          memory: "8Gi"
         requests:
-          memory: "16Gi"
+          memory: "8Gi"
       proxy: 
         resources:
           limits:
